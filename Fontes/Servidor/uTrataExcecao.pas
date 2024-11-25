@@ -3,7 +3,7 @@ unit uTrataExcecao;
 interface
 
 uses
-  System.SysUtils, uTrataExcecaoPai;
+  uTrataExcecaoPai;
 
 type
 
