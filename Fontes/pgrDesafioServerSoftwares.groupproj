@@ -1,0 +1,96 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{57872AD5-637D-48EB-AE04-1B9D48E2E078}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Pacotes\Interfaces\Interfaces.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Pacotes\Comunicacao\Comunicacao.dproj">
+            <Dependencies>Pacotes\Interfaces\Interfaces.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Pacotes\Tabelas\Tabelas.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Pacotes\Padrao\Padrao.dproj">
+            <Dependencies>Pacotes\Comunicacao\Comunicacao.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Cliente\Cliente.dproj">
+            <Dependencies>Pacotes\Padrao\Padrao.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Servidor\Servidor.dproj">
+            <Dependencies>Pacotes\Comunicacao\Comunicacao.dproj;Pacotes\Tabelas\Tabelas.dproj;Pacotes\Padrao\Padrao.dproj</Dependencies>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Interfaces">
+        <MSBuild Projects="Pacotes\Interfaces\Interfaces.dproj"/>
+    </Target>
+    <Target Name="Interfaces:Clean">
+        <MSBuild Projects="Pacotes\Interfaces\Interfaces.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Interfaces:Make">
+        <MSBuild Projects="Pacotes\Interfaces\Interfaces.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Comunicacao" DependsOnTargets="Interfaces">
+        <MSBuild Projects="Pacotes\Comunicacao\Comunicacao.dproj"/>
+    </Target>
+    <Target Name="Comunicacao:Clean" DependsOnTargets="Interfaces:Clean">
+        <MSBuild Projects="Pacotes\Comunicacao\Comunicacao.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Comunicacao:Make" DependsOnTargets="Interfaces:Make">
+        <MSBuild Projects="Pacotes\Comunicacao\Comunicacao.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Tabelas">
+        <MSBuild Projects="Pacotes\Tabelas\Tabelas.dproj"/>
+    </Target>
+    <Target Name="Tabelas:Clean">
+        <MSBuild Projects="Pacotes\Tabelas\Tabelas.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Tabelas:Make">
+        <MSBuild Projects="Pacotes\Tabelas\Tabelas.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Padrao" DependsOnTargets="Comunicacao">
+        <MSBuild Projects="Pacotes\Padrao\Padrao.dproj"/>
+    </Target>
+    <Target Name="Padrao:Clean" DependsOnTargets="Comunicacao:Clean">
+        <MSBuild Projects="Pacotes\Padrao\Padrao.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Padrao:Make" DependsOnTargets="Comunicacao:Make">
+        <MSBuild Projects="Pacotes\Padrao\Padrao.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Cliente" DependsOnTargets="Padrao">
+        <MSBuild Projects="Cliente\Cliente.dproj"/>
+    </Target>
+    <Target Name="Cliente:Clean" DependsOnTargets="Padrao:Clean">
+        <MSBuild Projects="Cliente\Cliente.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Cliente:Make" DependsOnTargets="Padrao:Make">
+        <MSBuild Projects="Cliente\Cliente.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Servidor" DependsOnTargets="Comunicacao;Tabelas;Padrao">
+        <MSBuild Projects="Servidor\Servidor.dproj"/>
+    </Target>
+    <Target Name="Servidor:Clean" DependsOnTargets="Comunicacao:Clean;Tabelas:Clean;Padrao:Clean">
+        <MSBuild Projects="Servidor\Servidor.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Servidor:Make" DependsOnTargets="Comunicacao:Make;Tabelas:Make;Padrao:Make">
+        <MSBuild Projects="Servidor\Servidor.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Interfaces;Comunicacao;Tabelas;Padrao;Cliente;Servidor"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Interfaces:Clean;Comunicacao:Clean;Tabelas:Clean;Padrao:Clean;Cliente:Clean;Servidor:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Interfaces:Make;Comunicacao:Make;Tabelas:Make;Padrao:Make;Cliente:Make;Servidor:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
