@@ -4,7 +4,7 @@ interface
 
 uses
   System.Generics.Collections, System.JSON, REST.Types, REST.Client, System.Classes,
-  REST.Authenticator.Basic, uIRestCliente;
+  uIRestCliente;
 
 type
 
@@ -18,7 +18,6 @@ type
     FRESTClient: TRESTClient;
     FRESTRequest: TRESTRequest;
     FRESTResponse: TRESTResponse;
-    FHTTPBasicAuthenticator: THTTPBasicAuthenticator;
     function GetRESTClient: TRESTClient;
     function GetRESTRequest: TRESTRequest;
     function GetRESTResponse: TRESTResponse;
@@ -48,7 +47,6 @@ begin
   FRESTClient   := TRESTClient.Create(nil);
   FRESTRequest  := TRESTRequest.Create(nil);
   FRESTResponse := TRESTResponse.Create(nil);
-  FHTTPBasicAuthenticator:= THTTPBasicAuthenticator.Create(nil);
 
   with RESTClient do
   begin
