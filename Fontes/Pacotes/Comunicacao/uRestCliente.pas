@@ -21,7 +21,6 @@ type
     FRESTClient: TRESTClient;
     FRESTRequest: TRESTRequest;
     FRESTResponse: TRESTResponse;
-    FHTTPBasicAuthenticator: THTTPBasicAuthenticator;
     FOnExecutarCliente: TOnExecutarCliente;
     FOnExecutarServidor: TOnExecutarServidor;
     function GetRESTClient: TRESTClient;
@@ -55,7 +54,6 @@ begin
   FRESTClient   := TRESTClient.Create(nil);
   FRESTRequest  := TRESTRequest.Create(nil);
   FRESTResponse := TRESTResponse.Create(nil);
-  FHTTPBasicAuthenticator:= THTTPBasicAuthenticator.Create(nil);
 
   with RESTClient do
   begin
