@@ -3,15 +3,19 @@ unit uCepPaiSalva;
 interface
 
 uses
-  System.JSON, REST.Types, uRestCliente, uTypes;
+  REST.Types, System.JSON, System.Generics.Collections,
+  uRestCliente, uTypes;
 
 type
-  TCepPaiSalva = class(TRestCliente)
+  TCepPaiSalva = class
   private
+    FRestCliente: TRestCliente;
     function GetVerboSalvar(aId: integer): TRESTRequestMethod;
     function GetVerboSalvar1(aId: integer): string;
     function PrepararEnviar(const aPath: string; const aPorta: integer; const aEndereco: TEndereco): TJSONValue;
   public
+    constructor Create; virtual;
+    destructor Destroy; override;
     function EnviarSalvar(const aPath: string; const aPorta: integer; const aEndereco: TEndereco): integer;
     function EnviarExcluir(const aPath: string; const aPorta, aId: integer): string;
   end;
@@ -19,10 +23,20 @@ type
 implementation
 
 uses
-  System.Generics.Collections, System.SysUtils,
-  uFuncoes, uConst;
+  System.SysUtils, uFuncoes, uConst;
 
 { TSalvaCepPai }
+
+constructor TCepPaiSalva.Create;
+begin
+  FRestCliente:= TRestCliente.Create;
+end;
+
+destructor TCepPaiSalva.Destroy;
+begin
+  FreeAndNil(FRestCliente);
+  inherited;
+end;
 
 function TCepPaiSalva.GetVerboSalvar(aId: integer): TRESTRequestMethod;
 begin
@@ -79,7 +93,7 @@ begin
       lItem.Valor := Logradouro;
       lLista.Add(lItem);
     end;
-    Result := Executar(aPath, aPorta, lLista, GetVerboSalvar(aEndereco.Id));
+    Result := FRestCliente.OnExecutarCliente(aPath, aPorta, lLista, GetVerboSalvar(aEndereco.Id));
   finally
     lLista.Clear;
     FreeAndNil(lLista);
@@ -99,7 +113,7 @@ begin
     lItem.Valor := IntToStr(aId);
     lLista.Add(lItem);
 
-    lRetorno := TJSONObject.ParseJSONValue(Executar(aPath + cDeleteCep, aPorta, lLista, rmDELETE).ToString) as TJSONObject;
+    lRetorno := TJSONObject.ParseJSONValue(FRestCliente.OnExecutarCliente(aPath + cDeleteCep, aPorta, lLista, rmDELETE).ToString) as TJSONObject;
     try
       Result := TJSONValue(lRetorno.Get('MSG').JsonValue).Value;
     finally
