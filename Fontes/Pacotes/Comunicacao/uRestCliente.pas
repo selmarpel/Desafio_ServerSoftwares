@@ -4,7 +4,7 @@ interface
 
 uses
   System.Generics.Collections, System.JSON, REST.Types, REST.Client, System.Classes,
-  uIRestCliente;
+  REST.Authenticator.Basic, uIRestCliente;
 
 type
 
@@ -13,19 +13,24 @@ type
     Valor: string;
   end;
 
+  TOnExecutarCliente = function(const aURL: string; const aPorta: integer; var aLista: TObjectList<TParametros>; const aVerbo: TRESTRequestMethod): TJSONValue of object;
+  TOnExecutarServidor = function(const aURL: string): TJSONValue of object;
+
   TRestCliente = class(TInterfacedObject, IRestCliente)
   private
     FRESTClient: TRESTClient;
     FRESTRequest: TRESTRequest;
     FRESTResponse: TRESTResponse;
+    FHTTPBasicAuthenticator: THTTPBasicAuthenticator;
+    FOnExecutarCliente: TOnExecutarCliente;
+    FOnExecutarServidor: TOnExecutarServidor;
     function GetRESTClient: TRESTClient;
     function GetRESTRequest: TRESTRequest;
     function GetRESTResponse: TRESTResponse;
     procedure TratarMsgErroServidor(const aValor: WideString);
-  protected
-    function Executar(const aURL: string; const aPorta: integer; var aLista: TObjectList<TParametros>; const aVerbo: TRESTRequestMethod): TJSONValue; overload; virtual;
-    function Executar(const aURL: string; const aPorta: integer; const aVerbo: TRESTRequestMethod): TJSONValue; overload; virtual;
-    function Executar(const aURL: string): TJSONValue; overload; virtual;
+  //protected
+    function ExecutarCliente(const aURL: string; const aPorta: integer; var aLista: TObjectList<TParametros>; const aVerbo: TRESTRequestMethod): TJSONValue; virtual;
+    function ExecutarServidor(const aURL: string): TJSONValue; virtual;
 
     property RESTClient: TRESTClient read GetRESTClient;
     property RESTRequest: TRESTRequest read GetRESTRequest;
@@ -33,6 +38,9 @@ type
   public
     constructor Create(const aTempoEspera: integer = 5000); virtual;
     destructor Destroy; override;
+  //published
+    property OnExecutarCliente: TOnExecutarCliente read FOnExecutarCliente;
+    property OnExecutarServidor: TOnExecutarServidor read FOnExecutarServidor;
   end;
 
 implementation
@@ -47,6 +55,7 @@ begin
   FRESTClient   := TRESTClient.Create(nil);
   FRESTRequest  := TRESTRequest.Create(nil);
   FRESTResponse := TRESTResponse.Create(nil);
+  FHTTPBasicAuthenticator:= THTTPBasicAuthenticator.Create(nil);
 
   with RESTClient do
   begin
@@ -61,6 +70,9 @@ begin
     ContentType := 'application/json';
     ReadTimeout := aTempoEspera;
     Authenticator := nil;
+
+    Self.FOnExecutarCliente  := Self.ExecutarCliente;
+    Self.FOnExecutarServidor := Self.ExecutarServidor;
   end;
 
   with RESTRequest do
@@ -79,21 +91,14 @@ begin
   inherited;
 end;
 
-function TRestCliente.Executar(const aURL: string): TJSONValue;
+function TRestCliente.ExecutarServidor(const aURL: string): TJSONValue;
 var
   lLista: TObjectList<TParametros>;
 begin
-  Result:= Executar(aURL, 0,  lLista, rmGET);
+  Result:= ExecutarCliente(aURL, 0,  lLista, rmGET);
 end;
 
-function TRestCliente.Executar(const aURL: string; const aPorta: integer; const aVerbo: TRESTRequestMethod): TJSONValue;
-var
-  lLista: TObjectList<TParametros>;
-begin
-  Result:= Executar(aURL, 0,  lLista, rmGET);
-end;
-
-function TRestCliente.Executar(const aURL: string; const aPorta: integer; var aLista: TObjectList<TParametros>; const aVerbo: TRESTRequestMethod): TJSONValue;
+function TRestCliente.ExecutarCliente(const aURL: string; const aPorta: integer; var aLista: TObjectList<TParametros>; const aVerbo: TRESTRequestMethod): TJSONValue;
 var
   lParametro: TParametros;
 begin
