@@ -6,8 +6,12 @@ uses
   uRestCliente, JSON;
 
 type
-  TCepConsultar = class(TRestCliente)
+  TCepConsultar = class
+  private
+    FRestCliente: TRestCliente;
   public
+    constructor Create(const aTempoEspera: integer); virtual;
+    destructor Destroy; override;
     function GetServidor(const aCEP: string): String;
   end;
 
@@ -21,10 +25,21 @@ const
 
 { TConsultarCEP }
 
+constructor TCepConsultar.Create(const aTempoEspera: integer);
+begin
+  FRestCliente:= TRestCliente.Create(aTempoEspera);
+end;
+
+destructor TCepConsultar.Destroy;
+begin
+  FreeAndNil(FRestCliente);
+  inherited;
+end;
+
 function TCepConsultar.GetServidor(const aCEP: string): String;
 begin
   try
-    Result := Executar(Format(cURL_CONSULTAR_CEP, [aCEP])).ToString;
+    Result := FRestCliente.OnExecutarServidor(Format(cURL_CONSULTAR_CEP, [aCEP])).ToString;
   Except
     on E: Exception do
       Result := '{"MSG":"' + e.Message + '"}';
