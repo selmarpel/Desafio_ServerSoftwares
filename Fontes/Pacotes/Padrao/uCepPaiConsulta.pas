@@ -7,12 +7,15 @@ uses
   uRestCliente, uTypes;
 
 type
-  TCepPaiConsulta = class(TRestCliente)
+  TCepPaiConsulta = class
   private
+    FRestCliente: TRestCliente;
     function GetEndereco(const aValor: string): TEndereco;
     function AddParametroCep(const aPath: string; const aPorta: integer; const aCEP: string): TJSONValue;
     procedure CarregarArray(const aEnderecos: TJSONValue; out aResultado: TEnderecos);
   public
+    constructor Create; virtual;
+    destructor Destroy; override;
     function Consultar(const aPath: string; const aPorta: integer; const aCEP: string): TEndereco; overload; virtual;
     function Consultar(const aPath: string; const aPorta: integer): TEnderecos; overload; virtual;
   end;
@@ -23,6 +26,17 @@ uses
   System.SysUtils, uConst, uFuncoes;
 
 { TBuscarCEP }
+
+constructor TCepPaiConsulta.Create;
+begin
+  FRestCliente:= TRestCliente.Create;
+end;
+
+destructor TCepPaiConsulta.Destroy;
+begin
+  FreeAndNil(FRestCliente);
+  inherited;
+end;
 
 function TCepPaiConsulta.AddParametroCep(const aPath: string; const aPorta: integer; const aCEP: string): TJSONValue;
 var
@@ -35,7 +49,7 @@ begin
     lItem.Campo := 'CEP';
     lItem.Valor := StrInteiro(aCEP);
     lLista.Add(lItem);
-    Result := Executar(aPath, aPorta, lLista, rmGET);
+    Result := FRestCliente.OnExecutarCliente(aPath, aPorta, lLista, rmGET);
   finally
     lLista.Clear;
     FreeAndNil(lLista);
